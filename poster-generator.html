@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>理想汽车海报生成器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .input-with-btn {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+
+        .input-with-btn input,
+        .input-with-btn textarea {
+            flex: 1;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .ai-btn {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: all 0.3s;
+        }
+
+        .ai-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+        }
+
+        .ai-btn:active {
+            transform: scale(0.98);
+        }
+
+        .keyword-input {
+            margin-top: 10px;
+            padding: 8px 12px;
+            border: 2px dashed #667eea;
+            border-radius: 8px;
+            font-size: 13px;
+            width: 100%;
+            background: #f8f9ff;
+        }
+
+        .template-scroll-container {
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        .template-scroll-container::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .template-scroll-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .template-scroll-container::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 10px;
+        }
+
+        .template-selector {
+            display: flex;
+            gap: 10px;
+            padding-bottom: 5px;
+        }
+
+        .template-btn {
+            flex: 0 0 auto;
+            padding: 10px 20px;
+            background: #f0f0f0;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            text-align: center;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .template-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .bg-keyword-input {
+            margin-top: 10px;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            width: 100%;
+        }
+
+        .bg-generate-btn {
+            margin-top: 10px;
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            width: 100%;
+        }
+
+        .bg-generate-btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .upload-section {
+            margin-bottom: 20px;
+        }
+
+        .upload-btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background 0.3s;
+            width: 100%;
+        }
+
+        .upload-btn:hover {
+            background: #5568d3;
+        }
+
+        .upload-btn:active {
+            transform: scale(0.98);
+        }
+
+        .upload-hint {
+            margin-top: 8px;
+            font-size: 12px;
+            color: #999;
+            line-height: 1.5;
+        }
+
+        #customImageInput {
+            display: none;
+        }
+
+        .preview-section {
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        #posterCanvas {
+            max-width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #38a169;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(72, 187, 120, 0.4);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .warning {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #856404;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .section-title {
+            color: #333;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 理想汽车海报生成器</h1>
+            <p>AI智能生成 · 一键创建专属海报</p>
+        </div>
+
+        <div id="feishuWarning" class="warning" style="display: none;">
+            ⚠️ 请在飞书中打开此链接
+        </div>
+
+        <div class="form-group">
+            <label>✨ AI生成活动标题</label>
+            <input type="text" id="keywordInput" class="keyword-input" placeholder="输入关键词，如：新春、疯狂星期四、周年庆等">
+            <div class="input-with-btn" style="margin-top: 10px;">
+                <input type="text" id="title" placeholder="活动标题" value="新春钜惠 好礼相送">
+                <button class="ai-btn" onclick="generateTitle()">🤖 AI生成</button>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>📝 活动模板快速选择</label>
+            <div class="template-scroll-container">
+                <div class="template-selector">
+                    <button class="template-btn" onclick="useTemplate('raffle')">🎁 有奖问答</button>
+                    <button class="template-btn" onclick="useTemplate('solitaire')">📋 群内接龙</button>
+                    <button class="template-btn" onclick="useTemplate('lucky')">🍀 幸运抽奖</button>
+                    <button class="template-btn" onclick="useTemplate('gift')">🎉 到店有礼</button>
+                    <button class="template-btn" onclick="useTemplate('test')">🚗 试驾体验</button>
+                    <button class="template-btn" onclick="useTemplate('share')">📸 分享有礼</button>
+                </div>
+            </div>
+            <textarea id="description" placeholder="输入活动详细内容...">到店即送理想毛绒公仔
+更有惊喜礼品等你来拿</textarea>
+        </div>
+
+        <div class="form-group">
+            <label>活动时间</label>
+            <input type="text" id="datetime" placeholder="例如：2024年1月1日 18:00" value="">
+        </div>
+
+        <div class="form-group">
+            <label>门店或群聊信息</label>
+            <input type="text" id="storeInfo" placeholder="例如：理想汽车北京朝阳门店 / XX车友群" value="理想汽车北京朝阳门店">
+        </div>
+
+        <div class="form-group">
+            <label class="section-title">🎨 生成海报底图风格</label>
+            <input type="text" id="bgKeyword" class="bg-keyword-input" placeholder="输入节日或主题关键词，如：小年夜、元宵节、春节、中秋、国庆等">
+            <button class="bg-generate-btn" onclick="generateBackground()">🎨 生成底图</button>
+        </div>
+
+        <div class="upload-section">
+            <label class="section-title">📸 上传活动素材（可选）</label>
+            <button class="upload-btn" onclick="document.getElementById('customImageInput').click()">
+                📁 上传图片
+            </button>
+            <input type="file" id="customImageInput" accept="image/*">
+            <div class="upload-hint">
+                💡 提示：可上传用户线下领奖照片、本次抽奖的实物照片等<br>
+                上传的图片会自动显示在海报中间位置
+            </div>
+            <div id="uploadPreview" style="margin-top: 10px; font-size: 13px; color: #48bb78;"></div>
+        </div>
+
+        <div class="preview-section">
+            <h3 style="margin-bottom: 15px; color: #333;">海报预览</h3>
+            <canvas id="posterCanvas" width="750" height="1334"></canvas>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn btn-primary" onclick="generatePoster()">
+                🎨 生成海报
+            </button>
+            <button class="btn btn-success" onclick="downloadPoster()">
+                📥 下载海报
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 检测是否在飞书环境中
+        function isInFeishu() {
+            const ua = navigator.userAgent.toLowerCase();
+            return ua.includes('lark') || ua.includes('feishu');
+        }
+
+        if (!isInFeishu()) {
+            document.getElementById('feishuWarning').style.display = 'block';
+        }
+
+        // 全局变量
+        let customImage = null;
+        let currentBackground = null;
+
+        // 设置默认时间为当天18:00
+        function setDefaultTime() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = today.getMonth() + 1;
+            const day = today.getDate();
+            document.getElementById('datetime').value = `${year}年${month}月${day}日 18:00`;
+        }
+
+        // AI标题生成模板
+        const titleTemplates = {
+            '新春': ['新春钜惠 好礼相送', '新春特惠 理想相伴', '新春福利 礼遇理想', '新春焕新 惊喜不断'],
+            '小年': ['小年夜福利 理想相伴', '小年特惠 好礼相送', '小年钜惠 理想同行'],
+            '元宵': ['元宵佳节 理想团圆', '元宵钜惠 好礼满满', '元宵特惠 礼遇理想'],
+            '疯狂星期四': ['疯狂星期四 理想来宠你', '星期四狂欢 理想有礼', '疯狂星期四 福利爆棚', '理想星期四 惊喜加倍'],
+            '周年庆': ['周年庆典 感恩钜惠', '周年狂欢 理想相伴', '周年感恩 礼遇升级', '周年庆特惠 好礼不停'],
+            '端午': ['端午安康 理想相伴', '端午钜惠 粽享好礼', '端午特惠 礼遇理想'],
+            '中秋': ['中秋团圆 理想相伴', '中秋钜惠 月满礼更满', '中秋特惠 礼遇理想'],
+            '国庆': ['国庆钜惠 理想同行', '国庆狂欢 好礼相送', '国庆特惠 礼遇升级'],
+            '双十一': ['双11狂欢 理想钜惠', '双11特惠 好礼不停', '双11来袭 福利爆棚'],
+            '双十二': ['双12狂欢 年终钜惠', '双12特惠 理想相伴', '双12盛典 好礼加倍'],
+            '618': ['618钜惠 理想相伴', '618狂欢 好礼不停', '618特惠 礼遇升级'],
+            '周末': ['周末狂欢 理想有礼', '周末特惠 到店有礼', '周末福利 惊喜不断'],
+            '会员': ['会员专享 尊享礼遇', '会员日特惠 好礼相送', '会员福利 理想相伴'],
+            '试驾': ['试驾有礼 理想相伴', '预约试驾 好礼相送', '试驾体验 惊喜不断']
+        };
+
+        // 活动模板
+        const activityTemplates = {
+            'raffle': '🎯 有奖问答活动\n\n参与方式：\n1️⃣ 在群内回答问题\n2️⃣ 答对即可参与抽奖\n3️⃣ 每日限额10名幸运儿\n\n🎁 奖品丰富，等你来拿！',
+            'solitaire': '📋 群内接龙领好礼\n\n参与方式：\n1️⃣ 在群内接龙报名\n2️⃣ 到店核销领取礼品\n3️⃣ 先到先得，送完为止\n\n💝 理想汽车毛绒公仔等你拿！',
+            'lucky': '🍀 幸运大抽奖\n\n参与方式：\n1️⃣ 转发本海报到朋友圈\n2️⃣ 截图发送到群内\n3️⃣ 每周五开奖公布中奖名单\n\n🎉 神秘大奖等你来抽！',
+            'gift': '🎉 到店有礼活动\n\n活动内容：\n✨ 到店即送毛绒公仔一只\n✨ 试驾即送精美礼品\n✨ 订车更享专属优惠\n\n💖 理想汽车诚邀您的光临！',
+            'test': '🚗 试驾体验活动\n\n活动内容：\n✨ 预约试驾送精美礼品\n✨ 专业顾问一对一讲解\n✨ 试驾后即送毛绒公仔\n\n🎁 理想汽车等你来体验！',
+            'share': '📸 分享有礼活动\n\n参与方式：\n1️⃣ 拍摄爱车照片\n2️⃣ 分享到朋友圈并@理想汽车\n3️⃣ 截图发送到群内\n\n🎁 精美礼品等你拿！'
+        };
+
+        // AI生成标题
+        function generateTitle() {
+            const keyword = document.getElementById('keywordInput').value.trim();
+
+            if (!keyword) {
+                alert('请先输入关键词哦~');
+                return;
+            }
+
+            let generatedTitle = '';
+
+            // 查找匹配的模板
+            for (let key in titleTemplates) {
+                if (keyword.includes(key)) {
+                    const templates = titleTemplates[key];
+                    generatedTitle = templates[Math.floor(Math.random() * templates.length)];
+                    break;
+                }
+            }
+
+            // 如果没有匹配到，使用通用模板
+            if (!generatedTitle) {
+                const genericTemplates = [
+                    `${keyword}特惠 理想相伴`,
+                    `${keyword}钜惠 好礼相送`,
+                    `${keyword}福利 礼遇理想`,
+                    `${keyword}活动 惊喜不断`
+                ];
+                generatedTitle = genericTemplates[Math.floor(Math.random() * genericTemplates.length)];
+            }
+
+            document.getElementById('title').value = generatedTitle;
+            generatePoster();
+        }
+
+        // 使用模板
+        function useTemplate(type) {
+            document.getElementById('description').value = activityTemplates[type];
+            generatePoster();
+        }
+
+        // 生成背景（根据关键词）
+        function generateBackground() {
+            const keyword = document.getElementById('bgKeyword').value.trim();
+            if (!keyword) {
+                alert('请输入节日或主题关键词~');
+                return;
+            }
+
+            const canvas = document.createElement('canvas');
+            canvas.width = 750;
+            canvas.height = 1334;
+            const ctx = canvas.getContext('2d');
+
+            // 根据关键词生成不同风格
+            if (keyword.includes('小年') || keyword.includes('春节') || keyword.includes('新春') || keyword.includes('过年')) {
+                drawSpringFestivalBg(ctx, canvas.width, canvas.height);
+            } else if (keyword.includes('元宵')) {
+                drawLanternBg(ctx, canvas.width, canvas.height);
+            } else if (keyword.includes('中秋')) {
+                drawMidAutumnBg(ctx, canvas.width, canvas.height);
+            } else if (keyword.includes('国庆')) {
+                drawNationalDayBg(ctx, canvas.width, canvas.height);
+            } else if (keyword.includes('端午')) {
+                drawDragonBoatBg(ctx, canvas.width, canvas.height);
+            } else if (keyword.includes('夏日') || keyword.includes('夏天')) {
+                drawSummerBg(ctx, canvas.width, canvas.height);
+            } else if (keyword.includes('冬日') || keyword.includes('冬天')) {
+                drawWinterBg(ctx, canvas.width, canvas.height);
+            } else {
+                drawDefaultBg(ctx, canvas.width, canvas.height);
+            }
+
+            currentBackground = canvas;
+            generatePoster();
+        }
+
+        // 春节/小年风格背景
+        function drawSpringFestivalBg(ctx, width, height) {
+            // 红色渐变背景
+            const gradient = ctx.createLinearGradient(0, 0, 0, height);
+            gradient.addColorStop(0, '#FF4444');
+            gradient.addColorStop(0.5, '#FF6B6B');
+            gradient.addColorStop(1, '#FF8888');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, width, height);
+
+            // 金色装饰圆圈
+            ctx.fillStyle = 'rgba(255, 215, 0, 0.15)';
+            ctx.beginPath();
+            ctx.arc(150, 200, 200, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(600, 800, 250, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 绘制灯笼
+            for (let i = 0; i < 3; i++) {
+                const x = 150 + i * 250;
+                const y = 100;
+                drawLantern(ctx, x, y, 60);
+            }
+
+            // 理想汽车元素 - 简化车型轮廓
+            drawCarSilhouette(ctx, width / 2, height - 150, 300, 120);
+        }
+
+        // 元宵节风格
+        function drawLanternBg(ctx, width, height) {
+            const gradient = ctx.createLinearGradient(0, 0, 0, height);
+            gradient.addColorStop(0, '#2d1b69');
+            gradient.addColorStop(0.5, '#5b3a9d');
+            gradient.addColorStop(1, '#8b5fbf');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, width, height);
+
+            // 星星
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            for (let i = 0; i < 60; i++) {
+                const x = Math.random() * width;
+                const y = Math.random() * height * 0.6;
+                ctx.fillRect(x, y, 3, 3);
+            }
+
+            // 多彩灯笼
+            const colors = ['#FF6B6B', '#FFD700', '#FF69B4', '#4ECDC4'];
+            for (let i = 0; i < 5; i++) {
+                const x = 100 + i * 150;
+                const y = 150 + Math.sin(i) * 30;
+                ctx.fillStyle = colors[i % colors.length];
+                drawLantern(ctx, x, y, 50);
+            }
+
+            drawCarSilhouette(ctx, width / 2, height - 150, 300, 120);
+        }
+
+        // 中秋风格
+        function drawMidAutumnBg(ctx, width, height) {
+            const gradient = ctx.createLinearGradient(0, 0, 0, height);
+            gradient.addColorStop(0, '#1a1a2e');
+            gradient.addColorStop(0.5, '#16213e');
+            gradient.addColorStop(1, '#0f3460');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, width, height);
+
+            // 月亮
+            ctx.fillStyle = '#FFE5B4';
+            ctx.shadowColor = 'rgba(255, 229, 180, 0.8)';
+            ctx.shadowBlur = 50;
+            ctx.beginPath();
+            ctx.arc(600, 250, 100, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+
+            // 星星
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+            for (let i = 0; i < 50; i++) {
+                const x = Math.random() * width;
+                const y = Math.random() * height;
+                ctx.fillRect(x, y, 2, 2);
+            }
+
+            drawCarSilhouette(ctx, width / 2, height - 150, 300, 120);
+        }
+
+        // 国庆风格
+        function drawNationalDayBg(ctx, width, height) {
+            const gradient = ctx.createLinearGradient(0, 0, 0, height);
+            gradient.addColorStop(0, '#DC143C');
+            gradient.addColorStop(0.5, '#FF4444');
+            gradient.addColorStop(1, '#FF6347');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, width, height);
+
+            // 金色五角星
+            ctx.fillStyle = '#FFD700';
+            for (let i = 0; i < 10; i++) {
+                const x = Math.random() * width;
+                const y = Math.random() * height;
+                const size = Math.random() * 30 + 20;
+                drawStar(ctx, x, y, size);
+            }
+
+            drawCarSilhouette(ctx, width / 2, height - 150, 300, 120);
+        }
+
+        // 端午风格
+        function drawDragonBoatBg(ctx, width, height) {
+            const gradient = ctx.createLinearGradient(0, 0, 0, height);
+            gradient.addColorStop(0, '#4A90E2');
+            gradient.addColorStop(0.5, '#50C9C3');
+            gradient.addColorStop(1, '#5FD3BC');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, width, height);
+
+            // 波浪
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.lineWidth = 3;
+            for (let i = 0; i < 8; i++) {
+                ctx.beginPath();
+                for (let x = 0; x < width; x += 10) {
+                    const y = Math.sin((x + i * 50) * 0.02) * 15 + 400 + i * 80;
+                    if (x === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+            }
+
+            drawCarSilhouette(ctx, width / 2, height - 150, 300, 120);
+        }
+
+        // 夏日风格
+        function drawSummerBg(ctx, width, height) {
+            const gradient = ctx.createLinearGradient(0, 0, 0, height);
+            gradient.addColorStop(0, '#FFD93D');
+            gradient.addColorStop(0.5, '#FFB347');
+            gradient.addColorStop(1, '#FF9A5B');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, width, height);
+
+            // 太阳
+            ctx.fillStyle = '#FFF44F';
+            ctx.shadowColor = 'rgba(255, 244, 79, 0.6)';
+            ctx.shadowBlur = 40;
+            ctx.beginPath();
+            ctx.arc(100, 150, 80, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+
+            // 云朵
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+            for (let i = 0; i < 6; i++) {
+                const x = Math.random() * width;
+                const y = Math.random() * 400;
+                drawCloud(ctx, x, y);
+            }
+
+            drawCarSilhouette(ctx, width / 2, height - 150, 300, 120);
+        }
+
+        // 冬日风格
+        function drawWinterBg(ctx, width, height) {
+            const gradient = ctx.createLinearGradient(0, 0, 0, height);
+            gradient.addColorStop(0, '#B8D8F8');
+            gradient.addColorStop(0.5, '#A8D5F2');
+            gradient.addColorStop(1, '#9DD1F1');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, width, height);
+
+            // 雪花
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            for (let i = 0; i < 40; i++) {
+                const x = Math.random() * width;
+                const y = Math.random() * height;
+                const size = Math.random() * 6 + 2;
+                drawSnowflake(ctx, x, y, size);
+            }
+
+            drawCarSilhouette(ctx, width / 2, height - 150, 300, 120);
+        }
+
+        // 默认风格
+        function drawDefaultBg(ctx, width, height) {
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, '#667eea');
+            gradient.addColorStop(0.5, '#764ba2');
+            gradient.addColorStop(1, '#f093fb');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, width, height);
+
+            // 装饰圆圈
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+            ctx.beginPath();
+            ctx.arc(200, 300, 180, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(550, 900, 200, 0, Math.PI * 2);
+            ctx.fill();
+
+            drawCarSilhouette(ctx, width / 2, height - 150, 300, 120);
+        }
+
+        // 绘制灯笼
+        function drawLantern(ctx, x, y, size) {
+            ctx.save();
+            ctx.fillStyle = '#FF4444';
+            // 灯笼主体
+            ctx.beginPath();
+            ctx.ellipse(x, y, size * 0.6, size * 0.8, 0, 0, Math.PI * 2);
+            ctx.fill();
+            // 金色装饰
+            ctx.fillStyle = '#FFD700';
+            ctx.fillRect(x - size * 0.6, y - size * 0.1, size * 1.2, size * 0.2);
+            ctx.fillRect(x - size * 0.6, y + size * 0.6, size * 1.2, size * 0.2);
+            // 流苏
+            ctx.strokeStyle = '#FFD700';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(x, y + size);
+            ctx.lineTo(x, y + size * 1.3);
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        // 绘制星星
+        function drawStar(ctx, x, y, size) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.beginPath();
+            for (let i = 0; i < 5; i++) {
+                const angle = (i * 4 * Math.PI / 5) - Math.PI / 2;
+                const px = Math.cos(angle) * size;
+                const py = Math.sin(angle) * size;
+                if (i === 0) ctx.moveTo(px, py);
+                else ctx.lineTo(px, py);
+            }
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+        }
+
+        // 绘制云朵
+        function drawCloud(ctx, x, y) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(x, y, 30, 0, Math.PI * 2);
+            ctx.arc(x + 25, y, 35, 0, Math.PI * 2);
+            ctx.arc(x + 50, y, 30, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        }
+
+        // 绘制雪花
+        function drawSnowflake(ctx, x, y, size) {
+            ctx.save();
+            ctx.translate(x, y);
+            for (let i = 0; i < 6; i++) {
+                ctx.rotate(Math.PI / 3);
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.lineTo(0, -size);
+                ctx.stroke();
+            }
+            ctx.restore();
+        }
+
+        // 绘制理想汽车简化轮廓
+        function drawCarSilhouette(ctx, x, y, width, height) {
+            ctx.save();
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.lineWidth = 3;
+
+            // 车身
+            const startX = x - width / 2;
+            const startY = y - height / 2;
+
+            ctx.beginPath();
+            // 底盘
+            ctx.moveTo(startX, startY + height);
+            ctx.lineTo(startX + width, startY + height);
+            // 右侧
+            ctx.lineTo(startX + width * 0.9, startY + height * 0.5);
+            // 车顶
+            ctx.lineTo(startX + width * 0.7, startY + height * 0.3);
+            ctx.lineTo(startX + width * 0.3, startY + height * 0.3);
+            // 左侧
+            ctx.lineTo(startX + width * 0.1, startY + height * 0.5);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // 车轮
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+            ctx.beginPath();
+            ctx.arc(startX + width * 0.25, startY + height, height * 0.25, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(startX + width * 0.75, startY + height, height * 0.25, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        // 处理自定义图片上传
+        document.getElementById('customImageInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        customImage = img;
+                        document.getElementById('uploadPreview').textContent = '✅ 已上传: ' + file.name;
+                        generatePoster();
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // 绘制圆角矩形
+        function roundRect(ctx, x, y, width, height, radius) {
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.lineTo(x + width - radius, y);
+            ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+            ctx.lineTo(x + width, y + height - radius);
+            ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+            ctx.lineTo(x + radius, y + height);
+            ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+            ctx.lineTo(x, y + radius);
+            ctx.quadraticCurveTo(x, y, x + radius, y);
+            ctx.closePath();
+        }
+
+        // 文字换行处理
+        function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+            const lines = text.split('\n');
+            let currentY = y;
+
+            lines.forEach(line => {
+                const words = line.split('');
+                let currentLine = '';
+
+                for (let i = 0; i < words.length; i++) {
+                    const testLine = currentLine + words[i];
+                    const metrics = ctx.measureText(testLine);
+
+                    if (metrics.width > maxWidth && i > 0) {
+                        ctx.fillText(currentLine, x, currentY);
+                        currentLine = words[i];
+                        currentY += lineHeight;
+                    } else {
+                        currentLine = testLine;
+                    }
+                }
+                ctx.fillText(currentLine, x, currentY);
+                currentY += lineHeight;
+            });
+
+            return currentY;
+        }
+
+        // 生成海报
+        function generatePoster() {
+            const canvas = document.getElementById('posterCanvas');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+
+            // 清空画布
+            ctx.clearRect(0, 0, width, height);
+
+            // 绘制背景
+            if (currentBackground) {
+                ctx.drawImage(currentBackground, 0, 0, width, height);
+            } else {
+                // 默认背景
+                drawDefaultBg(ctx, width, height);
+            }
+
+            // 添加半透明遮罩
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+            ctx.fillRect(0, 0, width, height);
+
+            // 绘制标题卡片
+            const titleY = 120;
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
+            ctx.shadowBlur = 20;
+            ctx.shadowOffsetY = 5;
+            roundRect(ctx, 50, titleY, width - 100, 130, 20);
+            ctx.fill();
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetY = 0;
+
+            // 标题文字
+            const title = document.getElementById('title').value || '理想汽车活动';
+            ctx.fillStyle = '#333333';
+            ctx.font = 'bold 50px -apple-system, PingFang SC, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(title, width / 2, titleY + 85);
+
+            // 绘制自定义上传的图片（中间位置）
+            let contentStartY = 320;
+            if (customImage) {
+                const maxImgWidth = 550;
+                const maxImgHeight = 450;
+                let imgWidth = customImage.width;
+                let imgHeight = customImage.height;
+
+                // 等比例缩放
+                if (imgWidth > maxImgWidth) {
+                    imgHeight = (maxImgWidth / imgWidth) * imgHeight;
+                    imgWidth = maxImgWidth;
+                }
+                if (imgHeight > maxImgHeight) {
+                    imgWidth = (maxImgHeight / imgHeight) * imgWidth;
+                    imgHeight = maxImgHeight;
+                }
+
+                const imgX = (width - imgWidth) / 2;
+                const imgY = contentStartY;
+
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+                ctx.shadowBlur = 25;
+                ctx.shadowOffsetY = 10;
+                ctx.save();
+                roundRect(ctx, imgX, imgY, imgWidth, imgHeight, 15);
+                ctx.clip();
+                ctx.drawImage(customImage, imgX, imgY, imgWidth, imgHeight);
+                ctx.restore();
+                ctx.shadowColor = 'transparent';
+                ctx.shadowBlur = 0;
+                ctx.shadowOffsetY = 0;
+
+                contentStartY = imgY + imgHeight + 40;
+            }
+
+            // 绘制详情卡片
+            const detailY = Math.max(contentStartY, 820);
+
+            // 先计算文字需要的高度
+            const description = document.getElementById('description').value;
+            const datetime = document.getElementById('datetime').value;
+            const storeInfo = document.getElementById('storeInfo').value;
+
+            // 预估高度：描述文字 + 时间 + 门店 + 间距
+            const estimatedHeight = 280;
+
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
+            ctx.shadowBlur = 20;
+            ctx.shadowOffsetY = 5;
+            roundRect(ctx, 50, detailY, width - 100, estimatedHeight, 20);
+            ctx.fill();
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetY = 0;
+
+            // 活动详情
+            ctx.fillStyle = '#333333';
+            ctx.font = 'bold 28px -apple-system, PingFang SC, sans-serif';
+            ctx.textAlign = 'center';
+            const descEndY = wrapText(ctx, description, width / 2, detailY + 50, width - 140, 44);
+
+            // 活动时间
+            ctx.fillStyle = '#667eea';
+            ctx.font = 'bold 24px -apple-system, PingFang SC, sans-serif';
+            ctx.fillText('📅 ' + datetime, width / 2, descEndY + 50);
+
+            // 门店信息
+            ctx.fillStyle = '#666666';
+            ctx.font = '22px -apple-system, PingFang SC, sans-serif';
+            ctx.fillText('📍 ' + storeInfo, width / 2, descEndY + 90);
+
+            // 底部品牌标识
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+            ctx.font = 'bold 20px -apple-system, PingFang SC, sans-serif';
+            ctx.fillText('理想汽车 · 创造移动的家', width / 2, height - 40);
+        }
+
+        // 下载海报
+        function downloadPoster() {
+            const canvas = document.getElementById('posterCanvas');
+
+            canvas.toBlob(function(blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = '理想汽车活动海报_' + Date.now() + '.png';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                alert('✅ 海报已保存到相册！');
+            }, 'image/png');
+        }
+
+        // 监听输入框变化，实时更新预览
+        document.getElementById('title').addEventListener('input', generatePoster);
+        document.getElementById('description').addEventListener('input', generatePoster);
+        document.getElementById('datetime').addEventListener('input', generatePoster);
+        document.getElementById('storeInfo').addEventListener('input', generatePoster);
+
+        // 页面加载时初始化
+        window.onload = function() {
+            setDefaultTime();
+            generatePoster();
+        };
+    </script>
+</body>
+</html>
